@@ -164,7 +164,14 @@ jobs:
         run: |
           REG_NAME=$(basename "$LLMDBENCH_CICD_TARGET")
           RUN_DATE=$(date +'%Y-%m-%d')
-          cd "$LLMDBENCH_WORKSPACE" && gcloud storage cp -r . "gs://llm-d-benchmarks/regressions/$REG_NAME/$RUN_DATE" || true
+          cd "$LLMDBENCH_WORKSPACE"
+          RUNNER_DIR=$(find . -maxdepth 1 -name "runner-*" -type d | head -n 1)
+          if [ -n "$RUNNER_DIR" ] && [ -d "$RUNNER_DIR" ]; then
+            echo "Uploading results from $RUNNER_DIR to GCS..."
+            cd "$RUNNER_DIR" && gcloud storage cp -r . "gs://llm-d-benchmarks/regressions/$REG_NAME/$RUN_DATE" || true
+          else
+            echo "Warning: No runner workspace directory found in $LLMDBENCH_WORKSPACE"
+          fi
         shell: bash
 
       - name: Download standalone results
@@ -332,7 +339,14 @@ jobs:
         run: |
           REG_NAME=$(basename "$LLMDBENCH_CICD_TARGET")
           RUN_DATE=$(date +'%Y-%m-%d')
-          cd "$LLMDBENCH_WORKSPACE" && gcloud storage cp -r . "gs://llm-d-benchmarks/regressions/$REG_NAME/$RUN_DATE" || true
+          cd "$LLMDBENCH_WORKSPACE"
+          RUNNER_DIR=$(find . -maxdepth 1 -name "runner-*" -type d | head -n 1)
+          if [ -n "$RUNNER_DIR" ] && [ -d "$RUNNER_DIR" ]; then
+            echo "Uploading results from $RUNNER_DIR to GCS..."
+            cd "$RUNNER_DIR" && gcloud storage cp -r . "gs://llm-d-benchmarks/regressions/$REG_NAME/$RUN_DATE" || true
+          else
+            echo "Warning: No runner workspace directory found in $LLMDBENCH_WORKSPACE"
+          fi
         shell: bash
 
       - name: Archive benchmark results as GitHub artifact
@@ -472,7 +486,14 @@ jobs:
         run: |
           REG_NAME=$(basename "$LLMDBENCH_CICD_TARGET")
           RUN_DATE=$(date +'%Y-%m-%d')
-          cd "$LLMDBENCH_WORKSPACE" && gcloud storage cp -r . "gs://llm-d-benchmarks/regressions/$REG_NAME/$RUN_DATE" || true
+          cd "$LLMDBENCH_WORKSPACE"
+          RUNNER_DIR=$(find . -maxdepth 1 -name "runner-*" -type d | head -n 1)
+          if [ -n "$RUNNER_DIR" ] && [ -d "$RUNNER_DIR" ]; then
+            echo "Uploading results from $RUNNER_DIR to GCS..."
+            cd "$RUNNER_DIR" && gcloud storage cp -r . "gs://llm-d-benchmarks/regressions/$REG_NAME/$RUN_DATE" || true
+          else
+            echo "Warning: No runner workspace directory found in $LLMDBENCH_WORKSPACE"
+          fi
         shell: bash
 
 #      - name: Archive benchmark results as GitHub artifact
