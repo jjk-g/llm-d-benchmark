@@ -11,11 +11,20 @@ Use the -j option to print a JSON Schema for the benchmark report.
 
 import argparse
 import os
+from typing import Any
 
 import sys
 
 from . import make_json_schema
 from .base import WorkloadGenerator
+
+
+def _export_report(br: Any, filename: str) -> None:
+    """Export benchmark report to file, auto-detecting format from extension."""
+    if filename.endswith(".json"):
+        br.export_json(filename)
+    else:
+        br.export_yaml(filename)
 
 
 def main() -> None:
@@ -113,7 +122,7 @@ def main() -> None:
 
     if args.session:
         if args.output_file:
-            import_inference_perf_session(args.results_file).export_yaml(args.output_file)
+            _export_report(import_inference_perf_session(args.results_file), args.output_file)
         else:
             print(import_inference_perf_session(args.results_file).get_yaml_str())
         sys.exit(0)
@@ -123,8 +132,9 @@ def main() -> None:
             if args.index:
                 # Generate benchmark report for a specific index
                 if args.output_file:
-                    import_guidellm(args.results_file, args.index).export_yaml(
-                        args.output_file
+                    _export_report(
+                        import_guidellm(args.results_file, args.index),
+                        args.output_file,
                     )
                 else:
                     print(import_guidellm(args.results_file, args.index).get_yaml_str())
@@ -141,29 +151,29 @@ def main() -> None:
                                 f"Output file already exists: {output_file}\n"
                             )
                             sys.exit(1)
-                        br.export_yaml(output_file)
+                        _export_report(br, output_file)
                     else:
                         # Don't create a file, just print to stdout
                         print(f"# Benchmark {ii + 1} of {len(br_list)}")
                         print(br.get_yaml_str())
         case WorkloadGenerator.INFERENCE_PERF:
             if args.output_file:
-                import_inference_perf(args.results_file).export_yaml(args.output_file)
+                _export_report(import_inference_perf(args.results_file), args.output_file)
             else:
                 print(import_inference_perf(args.results_file).get_yaml_str())
         case WorkloadGenerator.VLLM_BENCHMARK:
             if args.output_file:
-                import_vllm_benchmark(args.results_file).export_yaml(args.output_file)
+                _export_report(import_vllm_benchmark(args.results_file), args.output_file)
             else:
                 print(import_vllm_benchmark(args.results_file).get_yaml_str())
         case WorkloadGenerator.INFERENCE_MAX:
             if args.output_file:
-                import_inference_max(args.results_file).export_yaml(args.output_file)
+                _export_report(import_inference_max(args.results_file), args.output_file)
             else:
                 print(import_inference_max(args.results_file).get_yaml_str())
         case WorkloadGenerator.NOP:
             if args.output_file:
-                import_nop(args.results_file).export_yaml(args.output_file)
+                _export_report(import_nop(args.results_file), args.output_file)
             else:
                 print(import_nop(args.results_file).get_yaml_str())
         case _:
